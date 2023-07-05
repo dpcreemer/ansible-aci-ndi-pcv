@@ -1,0 +1,24 @@
+---
+# tasks file for tenant
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth
+      host: "{{ hostname }}"
+      username: "{{ username }}"
+      private_key: "{{ private_key }}"
+      validate_certs: false
+
+- name: Create Tenant
+  cisco.aci.aci_tenant:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    name_alias: "{{ tenant_alias }}"
+    description: "{{ tenant_description }}"
+
+- name: Create VRF
+  cisco.aci.aci_vrf:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    vrf: "{{ vrf }}"
+    description: "{{ vrf_description }}"

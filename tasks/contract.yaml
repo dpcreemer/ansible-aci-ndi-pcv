@@ -1,0 +1,35 @@
+---
+# tasks file for Contract
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth
+      host: "{{ ansible_host }}"
+      username: "{{ aci_username }}"
+      private_key: "{{ aci_private_key }}"
+      validate_certs: "{{ aci_validate_certs }}"
+      output_path: "{{ prechange_file }}"
+
+- name: "{{ 'Create Contract - ' + contract }}"
+  cisco.aci.aci_contract:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    contract: "{{ contract }}"
+    name_alias: "{{ alias }}"
+    description: "{{ description }}"
+
+- name: "{{ 'Create Default Contract Subject for ' + contract }}"
+  cisco.aci.aci_contract_subject:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    contract: "{{ contract }}"
+    subject: default
+
+- name: "{{ 'Create filter for contract' + contract }}"
+  cisco.aci.aci_contract_subject_to_filter:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    contract: "{{ contract }}"
+    subject: default
+    filter: "{{ item }}"
+  loop: "{{ filters }}"

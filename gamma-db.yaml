@@ -1,0 +1,46 @@
+---
+# ACI EPG playbook
+- name: Create Gamma Database EPG and dependencies
+  hosts: apic
+  connection: local
+
+  vars:
+    prechange_file: dryrun.json
+    tenant: ansible
+    vrf: demo
+
+  tasks:
+    - import_tasks: tasks/bd.yaml
+      vars:
+        bd: gamma-db
+        description: Gamma Database Servers
+        gateway: 10.1.103.65
+        mask: 27
+        scope: public
+        l3outs:
+          - core
+
+    - import_tasks: tasks/ap.yaml
+      vars:
+        ap: gamma
+        description: Gamma Application Suite
+
+    - import_tasks: tasks/epg.yaml
+      vars:
+        ap: gamma
+        epg: db
+        alias: Gamma-Database-Servers
+        description: Database servers for the Gamma application suite
+        bd: gamma-db
+        vmm_domain: hx-sc-dvs
+        contracts:
+          - {contract: gamma-db:mysql, direction: provider}
+
+    - import_tasks: tasks/contract.yaml
+      vars:
+        contract: gamma-db:mysql
+        alias: Gamma-Database.MySQL
+        description: Gamma Database EPG - MySQL tcp 3306
+        filters:
+          - icmp
+          - mysql

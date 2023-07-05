@@ -1,0 +1,19 @@
+---
+# tasks file for VZAny
+
+- name: Setup Connection to APIC
+  set_fact:
+    auth: &auth   
+      host: "{{ hostname }}"
+      username: "{{ username }}"
+      private_key: "{{ private_key }}"
+      validate_certs: false
+
+- name: Assign VZAny Contracts
+  cisco.aci.aci_vzany_to_contract:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    vrf: "{{ vrf }}"
+    contract: "{{ item.contract }}"
+    type: "{{ item.direction }}"
+  loop: "{{ contracts }}"

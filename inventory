@@ -1,0 +1,22 @@
+all:
+  children:
+    apic:
+      hosts:
+        bloomington:
+          ansible_host: bloom-aci.rtp.lab
+          aci_username: labowski
+          aci_private_key: labowski.key
+          aci_validate_certs: no
+    nd:
+      hosts:
+        node1:
+          ansible_host: nd-node-01.prod.rtp.lab
+          ansible_user: labowski
+          ansible_ssh_pass: "PASSWORD"
+          login_domain: local
+      vars: 
+        ansible_connection: ansible.netcommon.httpapi
+        ansible_network_os: cisco.nd.nd
+        ansible_httpapi_validate_certs: False
+        ansible_httpapi_use_ssl: True
+        ansible_httpapi_use_prox: True

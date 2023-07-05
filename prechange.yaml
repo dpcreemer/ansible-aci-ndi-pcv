@@ -1,0 +1,35 @@
+---
+
+- name: Run Pre-Change Analysis
+  hosts: nd
+  gather_facts: false
+  vars:
+    insights_fabric_group: ACI-Fabrics
+    site: Bloomington
+    prechange_file: dryrun.json
+
+  vars_prompt:
+    - name: change_name
+      prompt: Name for pre-change analysis
+      private: false
+
+  tasks:
+    - name: Create a new Pre-Change Analysis from file
+      cisco.nd.nd_pcv:
+        login_domain: "{{ login_domain }}"
+        ig_name: "{{ insights_fabric_group }}"
+        site_name: "{{ site }}"
+        name: "{{ change_name }}"
+        file: "{{ prechange_file }}"
+        state: present
+
+    - name: Copy the pre-change file to _pcv file
+      ansible.builtin.copy:
+        src: "{{ prechange_file }}"
+        dest: "{{ prechange_file.replace('.json', '_pcv.json') }}"
+        mode: "0644"
+      
+    - name: Delete the pre-change file (because Ansible is lame and can't rename a file.)
+      ansible.builtin.file:
+        path: "{{ prechange_file }}"
+        state: absent

@@ -1,0 +1,26 @@
+---
+
+- name: Validate Pre-Change Analysis
+  hosts: nd
+  gather_facts: false
+  vars:
+    insights_fabric_group: ACI-Fabrics
+    site: Bloomington
+    prechange_file: dryrun.json
+
+  vars_prompt:
+    - name: change_name
+      prompt: Name for pre-change analysis
+      private: false
+
+  tasks:
+    - name: Validate a Pre-Change Analysis
+      cisco.nd.nd_pcv_delta_analysis:
+        login_domain: "{{ login_domain }}"
+        insights_group: "{{ insights_fabric_group }}"
+        site_name: "{{ site }}"
+        name: "{{ change_name }}"
+        state: validate
+        exclude_ack_anomalies: True
+        epoch_choice: epoch2
+      register: pcv_result

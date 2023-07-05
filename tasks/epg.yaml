@@ -1,0 +1,41 @@
+---
+# tasks file for EPG
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth
+      host: "{{ ansible_host }}"
+      username: "{{ aci_username }}"
+      private_key: "{{ aci_private_key }}"
+      validate_certs: "{{ aci_validate_certs }}"
+      output_path: "{{ prechange_file }}"
+
+- name: "{{ 'Create EPG, ' + ap + '/' + 'epg' }}"
+  cisco.aci.aci_epg:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    ap: "{{ ap }}"
+    epg: "{{ epg }}"
+    name_alias: "{{ alias }}"
+    description: "{{ description }}"
+    bd: "{{ bd }}"
+
+- name: "{{ 'Associate ' + epg + ' to VMM Domain ' + vmm_domain }}"
+  cisco.aci.aci_epg_to_domain:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    ap: "{{ ap }}"
+    epg: "{{ epg }}"
+    domain: "{{ vmm_domain }}"
+    domain_type: vmm
+    vm_provider: vmware
+
+- name: "{{ 'Associate contracts to ' + epg }}"
+  cisco.aci.aci_epg_to_contract:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    ap: "{{ ap }}"
+    epg: "{{ epg }}"
+    contract: "{{ item.contract }}"
+    contract_type: "{{ item.direction }}"
+  loop: "{{ contracts }}"

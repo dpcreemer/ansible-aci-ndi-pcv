@@ -1,0 +1,36 @@
+---
+# tasks file for tenant
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth
+      host: "{{ ansible_host }}"
+      username: "{{ aci_username }}"
+      private_key: "{{ aci_private_key }}"
+      validate_certs: "{{ aci_validate_certs }}"
+      output_path: "{{ prechange_file }}"
+
+- name: "Create BD: {{ bd}}"
+  cisco.aci.aci_bd:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    bd: "{{ bd }}"
+    description: "{{ description }}"
+    vrf: "{{ vrf }}"
+
+- name: Add Subnet
+  cisco.aci.aci_bd_subnet:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    bd: "{{ bd }}"
+    gateway: "{{ gateway }}"
+    mask: "{{ mask }}"
+    scope: "{{ scope }}"
+
+- name: Associate BD to L3Out
+  cisco.aci.aci_bd_to_l3out:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    bd: "{{ bd }}"
+    l3out: "{{ item }}"
+  loop: "{{ l3outs }}"

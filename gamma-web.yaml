@@ -1,0 +1,55 @@
+---
+# ACI EPG playbook
+- name: Create Gamma Web EPG and dependencies
+  hosts: apic
+  connection: local
+
+  vars:
+    prechange_file: dryrun.json
+    tenant: ansible
+    vrf: demo
+
+  tasks:
+    - import_tasks: tasks/bd.yaml
+      vars:
+        bd: gamma-web
+        description: Gamma Web Servers
+        gateway: 10.1.103.1
+        mask: 27
+        scope: public
+        l3outs:
+          - core
+
+    - import_tasks: tasks/ap.yaml
+      vars:
+        ap: gamma
+        description: Gamma Application Suite
+
+    - import_tasks: tasks/epg.yaml
+      vars:
+        ap: gamma
+        epg: app
+        alias: Gamma-Web-Servers
+        description: Web servers for the Gamma application suite
+        bd: gamma-web
+        vmm_domain: hx-sc-dvs
+        contracts:
+          - {contract: gamma-app:app, direction: consumer}
+          - {contract: gamma-web:https, direction: provider}
+
+    - import_tasks: tasks/contract.yaml
+      vars:
+        contract: gamma-web:https
+        alias: Gamma-Web.HTTPS
+        description: Gamma Web EPG - Web Server on TCP 443
+        filters:
+          - icmp
+          - https
+
+    - import_tasks: tasks/extepg.yaml
+      vars:
+        l3out: core
+        extepg: default
+        networks: []
+        contracts: 
+          - {contract: gamma-web:https, direction: consumer}

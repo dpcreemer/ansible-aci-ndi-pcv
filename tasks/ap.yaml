@@ -1,0 +1,18 @@
+---
+# tasks for Application Profile
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth
+      host: "{{ ansible_host }}"
+      username: "{{ aci_username }}"
+      private_key: "{{ aci_private_key }}"
+      validate_certs: "{{ aci_validate_certs }}"
+      output_path: "{{ prechange_file }}"
+
+- name: Create AP
+  cisco.aci.aci_ap:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    ap: "{{ ap }}"
+    description: "{{ description }}"

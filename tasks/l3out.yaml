@@ -1,0 +1,63 @@
+---
+# tasks file for L3Out 
+
+- name: Setup APIC Connectivity
+  set_fact:
+    auth: &auth   
+      host: "{{ hostname }}"
+      username: "{{ username }}"
+      private_key: "{{ private_key }}"
+      validate_certs: false
+
+- name: "{{ 'Create L3 Out - ' + l3out }}"
+  cisco.aci.aci_l3out:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    vrf: "{{ vrf }}"
+    l3out: "{{ l3out }}"
+    name_alias: "{{ alias }}"
+    description: "{{ description }}"
+    domain: "{{ domain }}"
+    l3protocol: "{{ protocol }}"
+    route_control: export
+
+- name: "{{ 'Create Node Profile for ' + l3out }}"
+  cisco.aci.aci_l3out_logical_node_profile:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    l3out: "{{ l3out }}"
+    node_profile: "{{ node_profile }}"
+
+- name: "{{ 'Create Nodes for ' + l3out }}"
+  cisco.aci.aci_l3out_logical_node:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    l3out: "{{ l3out }}"
+    node_profile: "{{ node_profile }}"
+    pod_id: "{{ item.pod }}"
+    node_id: "{{ item.node }}"
+    router_id: "{{ item.rtrid }}"
+  loop: "{{ nodes }}"
+
+- name: "{{ 'Create Interface Profile for ' + l3out }}"
+  cisco.aci.aci_l3out_logical_interface_profile:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    l3out: "{{ l3out }}"
+    node_profile: "{{ node_profile }}"
+    interface_profile: "{{ interface_profile }}"
+
+- name: "{{ 'Create Interfaces for ' + l3out }}"
+  cisco.aci.aci_l3out_interface:
+    <<: *auth
+    tenant: "{{ tenant }}"
+    l3out: "{{ l3out }}"
+    node_profile: "{{ node_profile }}"
+    interface_profile: "{{ interface_profile }}"
+    interface_type: sub-interface
+    pod_id: "{{ item.pod }}"
+    node_id: "{{ item.node }}"
+    path_ep: "{{ item.path }}"
+    encap: "{{ 'vlan-' + vlan|string }}"
+    address: "{{ item.address }}"
+  loop: "{{ interfaces }}"
