@@ -1,9 +1,0 @@
-dc:
-  children:
-    apic:
-      hosts:
-        bloomington:
-          ansible_host: bloom-aci.rtp.lab
-          aci_username: labowski
-          aci_private_key: labowski.key
-          aci_validate_certs: no
