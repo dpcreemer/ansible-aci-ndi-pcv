@@ -6,11 +6,13 @@
 
   vars:
     prechange_file: dryrun.json
+    change_file: liverun.json
     tenant: ansible
     vrf: demo
 
   tasks:
-    - import_tasks: tasks/bd.yaml
+    - name: Create Bridge Domain and dependencies
+      ansible.builtin.import_tasks: tasks/bd.yaml
       vars:
         bd: gamma-app
         description: Gamma Application Servers
@@ -20,12 +22,14 @@
         l3outs:
           - core
 
-    - import_tasks: tasks/ap.yaml
+    - name: Create Application Profile and dependencies
+      ansible.builtin.import_tasks: tasks/ap.yaml
       vars:
         ap: gamma
         description: Gamma Application Suite
 
-    - import_tasks: tasks/epg.yaml
+    - name: Create Endpoint Group and dependencies
+      ansible.builtin.import_tasks: tasks/epg.yaml
       vars:
         ap: gamma
         epg: app
@@ -37,7 +41,8 @@
           - {contract: gamma-db:mysql, direction: consumer}
           - {contract: gamma-app:app, direction: provider}
 
-    - import_tasks: tasks/contract.yaml
+    - name: Create Contract and dependencies
+      ansible.builtin.import_tasks: tasks/contract.yaml
       vars:
         contract: gamma-app:app
         alias: Gamma-Application.Application

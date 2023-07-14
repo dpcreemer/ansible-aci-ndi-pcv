@@ -4,10 +4,11 @@
 - name: Setup APIC Connectivity
   set_fact:
     auth: &auth   
-      host: "{{ hostname }}"
-      username: "{{ username }}"
-      private_key: "{{ private_key }}"
+      host: "{{ ansible_host }}"
+      username: "{{ aci_username }}"
+      private_key: "{{ aci_private_key }}"
       validate_certs: false
+      output_path: "{{ prechange_file }}"
 
 - name: "{{ 'Create L3 Out - ' + l3out }}"
   cisco.aci.aci_l3out:

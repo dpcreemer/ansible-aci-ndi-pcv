@@ -2,13 +2,13 @@
 # tasks file for External EPG
 
 - name: Setup Connection to APIC
-  set_fact:
-    auth: &auth   
+  ansible.builtin.set_fact:
+    auth: &auth
       host: "{{ ansible_host }}"
       username: "{{ aci_username }}"
       private_key: "{{ aci_private_key }}"
       validate_certs: "{{ aci_validate_certs }}"
-      output_path: "{{ prechange_file }}"
+      output_path: "{{ prechange_file if ansible_check_mode else change_file }}"
 
 - name: "{{ 'Create External EPG for ' + l3out }}"
   cisco.aci.aci_l3out_extepg:
@@ -22,7 +22,7 @@
     <<: *auth
     tenant: "{{ tenant }}"
     l3out: "{{ l3out }}"
-    extepg: "{{ extepg}}"
+    extepg: "{{ extepg }}"
     network: "{{ item.subnet }}"
   loop: "{{ networks }}"
 
@@ -34,4 +34,4 @@
     extepg: "{{ extepg }}"
     contract: "{{ item.contract }}"
     contract_type: "{{ item.direction }}"
-  loop: "{{ contracts }}" 
+  loop: "{{ contracts }}"

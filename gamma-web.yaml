@@ -6,11 +6,13 @@
 
   vars:
     prechange_file: dryrun.json
+    change_file: liverun.json
     tenant: ansible
     vrf: demo
 
   tasks:
-    - import_tasks: tasks/bd.yaml
+    - name: Create Bridge Domain and its dependencies
+      ansible.builtin.import_tasks: tasks/bd.yaml
       vars:
         bd: gamma-web
         description: Gamma Web Servers
@@ -20,15 +22,17 @@
         l3outs:
           - core
 
-    - import_tasks: tasks/ap.yaml
+    - name: Create Application Profile and its dependencies
+      ansible.builtin.import_tasks: tasks/ap.yaml
       vars:
         ap: gamma
         description: Gamma Application Suite
 
-    - import_tasks: tasks/epg.yaml
+    - name: Create Endpoint Group and its dependencies
+      ansible.builtin.import_tasks: tasks/epg.yaml
       vars:
         ap: gamma
-        epg: app
+        epg: web
         alias: Gamma-Web-Servers
         description: Web servers for the Gamma application suite
         bd: gamma-web
@@ -37,7 +41,8 @@
           - {contract: gamma-app:app, direction: consumer}
           - {contract: gamma-web:https, direction: provider}
 
-    - import_tasks: tasks/contract.yaml
+    - name: Create Contract and its dependencies
+      ansible.builtin.import_tasks: tasks/contract.yaml
       vars:
         contract: gamma-web:https
         alias: Gamma-Web.HTTPS
@@ -46,10 +51,11 @@
           - icmp
           - https
 
-    - import_tasks: tasks/extepg.yaml
+    - name: Modify external endpoint group
+      ansible.builtin.import_tasks: tasks/extepg.yaml
       vars:
         l3out: core
         extepg: default
         networks: []
-        contracts: 
+        contracts:
           - {contract: gamma-web:https, direction: consumer}
